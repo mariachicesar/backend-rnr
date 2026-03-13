@@ -1,0 +1,239 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String     @id @default(uuid())
+  name           String?
+  email          String?    @unique
+  emailVerified  DateTime?
+  hashedPassword String?
+  role           String     @default("user") // user, admin
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  estimates      Estimate[]
+  contracts      Contract[]
+  invoices       Invoice[]
+  appointments   Appointment[]
+}
+
+model Client {
+  id            String     @id @default(uuid())
+  name          String
+  email         String
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?
+  notes         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  estimates     Estimate[]
+  contracts     Contract[]
+  invoices      Invoice[]
+  payments      Payment[]
+  appointments  Appointment[]
+
+  @@index([email])
+}
+
+model Estimate {
+  id                String     @id @default(uuid())
+  estimateNumber    String     @unique
+  clientId          String
+  userId            String
+  title             String
+  description       String?
+  items             String     // JSON stringified array of line items
+  subtotal          Float
+  tax               Float
+  total             Float
+  validUntil        DateTime?
+  status            String     @default("draft") // draft, sent, accepted, rejected, expired
+  notes             String?
+  sentAt            DateTime?
+  viewedAt          DateTime?
+  respondedAt       DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  client            Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user              User       @relation(fields: [userId], references: [id])
+  contract          Contract?
+  emailLogs         EmailLog[]
+
+  @@index([clientId])
+  @@index([userId])
+  @@index([status])
+}
+
+model Contract {
+  id                String     @id @default(uuid())
+  contractNumber    String     @unique
+  estimateId        String?    @unique
+  clientId          String
+  userId            String
+  title             String
+  description       String?
+  items             String     // JSON: [{id, description, quantity, unitPrice}] — flat scope (from estimate)
+  phases            String     @default("[]") // JSON: [{id, name, description, items:[...], subtotal}]
+  paymentSchedule   String     @default("[]") // JSON: [{id, description, amount, percentage, dueOn: 'deposit'|'phase_complete'|'final', phaseId?}]
+  subtotal          Float
+  tax               Float
+  total             Float
+  startDate         DateTime?
+  completionDate    DateTime?
+  status            String     @default("draft") // draft, active, completed, cancelled
+  terms             String?    // Standard T&C text
+  signedAt          DateTime?
+  signedByClient    Boolean    @default(false)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  estimate          Estimate?  @relation(fields: [estimateId], references: [id])
+  client            Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user              User       @relation(fields: [userId], references: [id])
+  invoices          Invoice[]
+  emailLogs         EmailLog[]
+
+  @@index([clientId])
+  @@index([userId])
+  @@index([estimateId])
+  @@index([status])
+}
+
+model Invoice {
+  id                String     @id @default(uuid())
+  invoiceNumber     String     @unique
+  contractId        String?
+  clientId          String
+  userId            String
+  title             String
+  description       String?
+  items             String     // JSON stringified array of line items
+  subtotal          Float
+  tax               Float
+  total             Float
+  amountPaid        Float      @default(0)
+  dueDate           DateTime?
+  status            String     @default("draft") // draft, sent, paid, partially_paid, overdue, cancelled
+  notes             String?
+  sentAt            DateTime?
+  paidAt            DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  contract          Contract?  @relation(fields: [contractId], references: [id])
+  client            Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user              User       @relation(fields: [userId], references: [id])
+  payments          Payment[]
+  emailLogs         EmailLog[]
+
+  @@index([clientId])
+  @@index([userId])
+  @@index([contractId])
+  @@index([status])
+}
+
+model Payment {
+  id                String     @id @default(uuid())
+  invoiceId         String
+  clientId          String
+  amount            Float
+  paymentMethod     String     // cash, check, credit_card, zelle, bank_transfer
+  paymentDate       DateTime
+  referenceNumber   String?
+  notes             String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  invoice           Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  client            Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([clientId])
+}
+
+model EmailLog {
+  id                String     @id @default(uuid())
+  estimateId        String?
+  contractId        String?
+  invoiceId         String?
+  recipient         String
+  subject           String
+  body              String
+  status            String     // sent, failed, bounced
+  sentAt            DateTime   @default(now())
+  errorMessage      String?
+
+  estimate          Estimate?  @relation(fields: [estimateId], references: [id])
+  contract          Contract?  @relation(fields: [contractId], references: [id])
+  invoice           Invoice?   @relation(fields: [invoiceId], references: [id])
+
+  @@index([estimateId])
+  @@index([contractId])
+  @@index([invoiceId])
+}
+
+// Open time slots published by admin for client self-booking
+model AppointmentSlot {
+  id          String       @id @default(uuid())
+  startTime   DateTime
+  endTime     DateTime
+  type        String       @default("any") // estimate | work | any
+  isAvailable Boolean      @default(true)
+  appointment Appointment?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([startTime])
+  @@index([isAvailable])
+}
+
+model Appointment {
+  id            String           @id @default(uuid())
+  type          String           // estimate | work
+  status        String           @default("scheduled") // scheduled | confirmed | completed | cancelled | no_show
+  startTime     DateTime
+  endTime       DateTime
+
+  // Link to existing client (optional — may be a new prospect)
+  clientId      String?
+  client        Client?          @relation(fields: [clientId], references: [id])
+
+  // Contact info for prospects / public self-bookings
+  contactName   String?
+  contactEmail  String?
+  contactPhone  String?
+  address       String?
+
+  // Linked to an open slot when booked via public page
+  slotId        String?          @unique
+  slot          AppointmentSlot? @relation(fields: [slotId], references: [id])
+
+  // Assigned technician
+  userId        String?
+  user          User?            @relation(fields: [userId], references: [id])
+
+  notes         String?   // client-visible
+  adminNotes    String?   // internal only
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([clientId])
+  @@index([userId])
+  @@index([status])
+  @@index([startTime])
+}
