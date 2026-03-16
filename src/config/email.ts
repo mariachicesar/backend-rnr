@@ -103,7 +103,7 @@ export function generateInvoiceEmail(
         </a>
       </p>
       
-      <p><strong>Payment Methods:</strong> Cash, Zelle, or Credit Card</p>
+      <p><strong>Payment Methods:</strong> Bank Account (ACH), Credit Card, or Zelle</p>
       
       <p>If you have any questions, please don't hesitate to reach out.</p>
       

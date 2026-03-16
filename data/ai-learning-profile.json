@@ -1,0 +1,76 @@
+{
+  "updatedAt": "2026-03-16T03:07:56.798Z",
+  "totalSamples": 3,
+  "numeric": {
+    "squareFootage": {
+      "avgError": -8,
+      "avgAbsError": 8,
+      "avgAbsPctError": 0.012383900928792569,
+      "underCountRate": 0,
+      "samples": 3
+    },
+    "outlets": {
+      "avgError": 36,
+      "avgAbsError": 40,
+      "avgAbsPctError": 0.5238095238095238,
+      "underCountRate": 0.3333333333333333,
+      "samples": 3
+    },
+    "switches": {
+      "avgError": 1.6666666666666667,
+      "avgAbsError": 1.6666666666666667,
+      "avgAbsPctError": 0.15151515151515152,
+      "underCountRate": 1,
+      "samples": 3
+    },
+    "lightFixtures": {
+      "avgError": -8.333333333333334,
+      "avgAbsError": 8.333333333333334,
+      "avgAbsPctError": 2.3333333333333335,
+      "underCountRate": 0,
+      "samples": 3
+    },
+    "recessedLights": {
+      "avgError": 9.666666666666666,
+      "avgAbsError": 9.666666666666666,
+      "avgAbsPctError": 0.6444444444444444,
+      "underCountRate": 1,
+      "samples": 3
+    },
+    "ceilingFans": {
+      "avgError": 1,
+      "avgAbsError": 1,
+      "avgAbsPctError": 0.3333333333333333,
+      "underCountRate": 1,
+      "samples": 3
+    },
+    "smokeCoDetectors": {
+      "avgError": -1,
+      "avgAbsError": 1,
+      "avgAbsPctError": 0.3333333333333333,
+      "underCountRate": 0,
+      "samples": 3
+    },
+    "exhaustFans": {
+      "avgError": 0,
+      "avgAbsError": 0,
+      "avgAbsPctError": 0,
+      "underCountRate": 0,
+      "samples": 3
+    },
+    "mainPanelAmps": {
+      "avgError": 0,
+      "avgAbsError": 0,
+      "avgAbsPctError": 0,
+      "underCountRate": 0,
+      "samples": 3
+    },
+    "subPanelAmps": {
+      "avgError": 0,
+      "avgAbsError": 0,
+      "avgAbsPctError": 0,
+      "underCountRate": 0,
+      "samples": 3
+    }
+  }
+}

@@ -1,8 +1,43 @@
 import { Router, Response } from 'express';
 import prisma from '../config/database';
 import { AuthRequest } from '../middleware/auth';
+import { recalculateInvoiceAndLinkedCredits } from '../services/billing';
 
 const router = Router();
+
+function formatPayment(payment: any) {
+  const isStripe = typeof payment.notes === 'string' && payment.notes.startsWith('Stripe checkout session');
+  const paymentMethod = payment.paymentMethod;
+
+  let sourceLabel = 'Manual';
+
+  if (isStripe && paymentMethod === 'bank_transfer') {
+    sourceLabel = 'Stripe ACH';
+  } else if (isStripe && paymentMethod === 'credit_card') {
+    sourceLabel = 'Stripe Card';
+  } else if (paymentMethod === 'zelle') {
+    sourceLabel = 'Zelle';
+  } else if (paymentMethod === 'check') {
+    sourceLabel = 'Check';
+  } else if (paymentMethod === 'cash') {
+    sourceLabel = 'Cash';
+  } else if (paymentMethod === 'bank_transfer') {
+    sourceLabel = 'Manual Bank Transfer';
+  } else if (paymentMethod === 'credit_card') {
+    sourceLabel = 'Manual Card';
+  }
+
+  return {
+    ...payment,
+    method: payment.paymentMethod,
+    reference: payment.referenceNumber,
+    invoiceNumber: payment.invoice?.invoiceNumber,
+    clientName: payment.client?.name,
+    source: isStripe ? 'stripe' : 'manual',
+    sourceLabel,
+    methodLabel: payment.paymentMethod.replace(/_/g, ' '),
+  };
+}
 
 // GET /api/payments
 router.get('/', async (req: AuthRequest, res: Response) => {
@@ -12,7 +47,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       orderBy: { createdAt: 'desc' },
     });
 
-    res.json(payments);
+    res.json(payments.map(formatPayment));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch payments' });
@@ -31,7 +66,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Payment not found' });
     }
 
-    res.json(payment);
+    res.json(formatPayment(payment));
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch payment' });
   }
@@ -39,53 +74,51 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
 // POST /api/payments - Create a payment record
 router.post('/', async (req: AuthRequest, res: Response) => {
-  const { invoiceId, clientId, amount, paymentMethod, paymentDate, referenceNumber, notes } = req.body;
+  const {
+    invoiceId,
+    clientId: providedClientId,
+    amount,
+    paymentMethod: providedPaymentMethod,
+    method,
+    paymentDate,
+    referenceNumber,
+    reference,
+    notes,
+  } = req.body;
 
-  if (!invoiceId || !clientId || !amount || !paymentMethod) {
+  const paymentMethod = providedPaymentMethod || method;
+
+  if (!invoiceId || !amount || !paymentMethod) {
     return res.status(400).json({ error: 'Required fields missing' });
   }
 
   try {
+    const invoice = await prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      include: { client: true, payments: true },
+    });
+
+    if (!invoice) {
+      return res.status(404).json({ error: 'Invoice not found' });
+    }
+
+    const clientId = providedClientId || invoice.clientId;
     const payment = await prisma.payment.create({
       data: {
         invoiceId,
         clientId,
         amount,
         paymentMethod,
-        paymentDate: new Date(paymentDate),
-        referenceNumber,
+        paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
+        referenceNumber: referenceNumber || reference,
         notes,
       },
       include: { invoice: true, client: true },
     });
 
-    // Update invoice amountPaid and status
-    const invoice = await prisma.invoice.findUnique({
-      where: { id: invoiceId },
-      include: { payments: true },
-    });
+    await recalculateInvoiceAndLinkedCredits(invoiceId);
 
-    if (invoice) {
-      const totalPaid = invoice.payments.reduce((sum, p) => sum + p.amount, 0) + amount;
-      let status = 'partially_paid';
-      let paidAt = null;
-
-      if (totalPaid >= invoice.total) {
-        status = 'paid';
-        paidAt = new Date();
-      }
-
-      await prisma.invoice.update({
-        where: { id: invoiceId },
-        data: {
-          amountPaid: totalPaid,
-          status,
-          paidAt,
-        },
-      });
-    }
-
-    res.status(201).json(payment);
+    res.status(201).json(formatPayment(payment));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to create payment' });
@@ -114,25 +147,7 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     });
 
     if (invoice) {
-      const remainingPayments = invoice.payments.filter(p => p.id !== req.params.id);
-      const totalPaid = remainingPayments.reduce((sum, p) => sum + p.amount, 0);
-      let status = 'draft';
-
-      if (totalPaid > 0 && totalPaid < invoice.total) {
-        status = 'partially_paid';
-      } else if (totalPaid >= invoice.total) {
-        status = 'paid';
-      } else if (invoice.sentAt && !totalPaid) {
-        status = 'sent';
-      }
-
-      await prisma.invoice.update({
-        where: { id: invoice.id },
-        data: {
-          amountPaid: totalPaid,
-          status,
-        },
-      });
+      await recalculateInvoiceAndLinkedCredits(invoice.id);
     }
 
     res.json({ success: true });

@@ -42,6 +42,14 @@ Required variables:
 - `RESEND_API_KEY`: Your Resend API key
 - `ADMIN_EMAIL`: Email address for sending from
 - `FRONTEND_URL`: URL of your frontend application (for email links)
+- `STRIPE_SECRET_KEY`: Stripe API secret key used to create Checkout sessions
+- `STRIPE_WEBHOOK_SECRET`: Stripe webhook signing secret for `/api/stripe/webhook`
+
+Stripe notes:
+- `STRIPE_SECRET_KEY` starts with `sk_...`
+- `STRIPE_WEBHOOK_SECRET` starts with `whsec_...`
+- The webhook secret is created per webhook endpoint. It is not the same as your API key.
+- For local testing, run `stripe listen --forward-to localhost:5000/api/stripe/webhook` and copy the printed `whsec_...` value into `.env`
 
 ### 3. Database Setup
 
@@ -143,6 +151,13 @@ npm run prisma:studio
 - `POST /api/payments` - Record a payment
 - `DELETE /api/payments/:id` - Delete payment record
 
+### Public Payment Tracking
+- `GET /api/public/track/invoice/:id?clientId=...` - Fetch invoice for client payment page
+- `POST /api/public/track/invoice/:id/checkout` - Create Stripe Checkout session for ACH or card
+
+### Stripe Webhooks
+- `POST /api/stripe/webhook` - Receive Stripe payment events and mark invoices as paid/partial
+
 ## Building for Production
 
 ```bash
@@ -185,7 +200,20 @@ JWT_SECRET=your_very_secure_random_string_here
 RESEND_API_KEY=re_...
 ADMIN_EMAIL=rnrelectrical2@gmail.com
 FRONTEND_URL=https://yourdomain.com
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 ```
+
+## Stripe Local Testing
+
+Install the Stripe CLI, authenticate it, and forward webhook events to your local API:
+
+```bash
+stripe login
+stripe listen --forward-to localhost:5000/api/stripe/webhook
+```
+
+Stripe prints a webhook signing secret like `whsec_...` when the listener starts. Use that value for `STRIPE_WEBHOOK_SECRET` in your local `.env`, then restart the backend.
 
 ## Database Backup
 

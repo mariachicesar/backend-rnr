@@ -1,0 +1,13 @@
+{
+  "updatedAt": "2026-03-16T02:45:22.723Z",
+  "totalSamples": 5,
+  "numeric": {
+    "smokeCoDetectors": {
+      "avgError": 3.4,
+      "avgAbsError": 3.4,
+      "avgAbsPctError": 1,
+      "underCountRate": 1,
+      "samples": 5
+    }
+  }
+}
