@@ -3,6 +3,7 @@ import prisma from '../config/database';
 import { createGoogleCalendarEventForAppointment, isGoogleCalendarSyncEnabled } from '../services/googleCalendar';
 import { buildInvoiceTrackUrl, getStripe, toStripeAmount } from '../services/stripe';
 import { sendEmail, generateInvoiceEmail, generateInvoiceLink } from '../config/email';
+import { listClientApprovedInspectorUpdates } from '../services/emailIntake';
 
 const router = Router();
 
@@ -36,6 +37,22 @@ function isValidEmail(email: string | null | undefined) {
   if (!email) return false;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+
+// GET /api/public/track/updates?clientId=
+router.get('/track/updates', async (req: Request, res: Response) => {
+  const clientId = req.query.clientId as string;
+  if (!clientId) {
+    return res.status(400).json({ error: 'clientId required' });
+  }
+
+  try {
+    const updates = await listClientApprovedInspectorUpdates(clientId);
+    res.json(updates);
+  } catch (error) {
+    console.error('[public/track/updates]', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // POST /api/public/track — client auth via last 4 phone digits + last name
 router.post('/track', async (req: Request, res: Response) => {

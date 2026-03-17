@@ -1,0 +1,73 @@
+[
+  {
+    "id": "0fcd4104-1360-4733-b851-3166ae79ab1e",
+    "externalId": "19cf6ec7cf678e82",
+    "category": "lead",
+    "status": "resolved",
+    "source": "gmail",
+    "subject": "New Lead from Website",
+    "sender": "RnR <rnrelectrical2@www.rnrelectrician.com>",
+    "receivedAt": "2026-03-16T13:53:39.000Z",
+    "bodyPreview": "Lead Info: Name: Cesar Rios Rico Email : cesar.rios@nakinc.org Phone: 9167573578 Zip Code: 91770 Type: panel Message: Upgrade https://loops.so?utm_sourcefooter&utm_mediumemail&utm_campaign%7BRnR%7D New Lead from Website #outlook a { padding:0; } body { margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%; } table, td { border-collapse:collapse;mso-table-lspace:0pt;mso-table-r",
+    "lead": {
+      "name": "Cesar Rios Rico",
+      "email": "cesar.rios@nakinc.org",
+      "phone": "9167573578",
+      "description": "Upgrade"
+    },
+    "createdAt": "2026-03-16T23:34:55.797Z",
+    "updatedAt": "2026-03-16T23:35:11.059Z"
+  },
+  {
+    "id": "582c371d-0bf4-4d0d-a508-28762a102568",
+    "externalId": "19ce45886bc85c4a",
+    "category": "inspector",
+    "status": "approved",
+    "source": "gmail",
+    "subject": "Re: Plans Requested -- 1153 E 24th St -- WR# 3109193",
+    "sender": "RnR Electrician <rnrelectrical2@gmail.com>",
+    "address": "1153 E 24th St",
+    "receivedAt": "2026-03-12T23:18:47.000Z",
+    "bodyPreview": "Hello, Here are the documents you requested. Please let me know if I need to make any changes. Thank you On Mon, Mar 9, 2026 at 9:48 AM 207.ESR <207.esr@ladwp.com> wrote: > Hello, > > Please include all units on the property including units on the other > service drop. > > Please send plans in PDF Format(Plot Plan, Load Schedule, Single Line > Diagram & Electric Service Planning Information Sheet)",
+    "createdAt": "2026-03-16T23:35:00.566Z",
+    "updatedAt": "2026-03-16T23:40:40.183Z",
+    "approvedAt": "2026-03-16T23:36:40.623Z",
+    "matchedClientId": "223248d0-b229-4e39-b83c-43157127f758",
+    "matchedClientName": "Cesar Rios"
+  },
+  {
+    "id": "fe6b84fe-632f-49ad-b5b1-0942d2e4d5a0",
+    "externalId": "19ce38bf6a4689f0",
+    "category": "lead",
+    "status": "approved",
+    "source": "gmail",
+    "subject": "New Lead from Website",
+    "sender": "RnR <rnrelectrical2@www.rnrelectrician.com>",
+    "receivedAt": "2026-03-12T19:35:26.000Z",
+    "bodyPreview": "Lead Info: Name: Kenny Huynh Email : hrchino@ngyusa.com Phone: 9099974962 Zip Code: 91710 Type: commercial Message: Hi, We are planning to install smart toilets in our restrooms and will need electrical outlets added nearby to support them. Could you please provide a quote for installing the necessary outlets? Please let us know if you need any additional information or if a site visit is required",
+    "lead": {
+      "name": "Kenny Huynh",
+      "email": "hrchino@ngyusa.com",
+      "phone": "9099974962",
+      "description": "Hi, We are planning to install smart toilets in our restrooms and will need electrical outlets added nearby to support"
+    },
+    "createdAt": "2026-03-16T23:01:21.451Z",
+    "updatedAt": "2026-03-16T23:01:47.170Z",
+    "approvedAt": "2026-03-16T23:01:47.170Z"
+  },
+  {
+    "id": "7484b248-24d7-482d-85a1-8f749aacf3a2",
+    "externalId": "19cdef820a6eb4ef",
+    "category": "inspector",
+    "status": "needs_review",
+    "source": "gmail",
+    "subject": "Meter Spot 10225 O'melveny Ave.   WR# 3109196",
+    "sender": "\"107.ESR\" <107.ESR@ladwp.com>",
+    "address": "10225 O'melveny Ave",
+    "receivedAt": "2026-03-11T22:15:21.000Z",
+    "summary": "Meter spot received for 10225 O'melveny Ave (WR# 3109196). Next step: submit completed work photos and inspection request.",
+    "bodyPreview": "Hello, Here's your meter spot for the address mentioned above. Send your inspection request with pics of the completed work and addressing requirements or any questions to 107.esr@ladwp.com<mailto:107.esr@ladwp.com>. Regards Mike Navarro -------------------------Confidentiality Notice-------------------------- This electronic message transmission contains information from the Los Angeles Departmen",
+    "createdAt": "2026-03-16T23:01:24.561Z",
+    "updatedAt": "2026-03-16T23:01:24.561Z"
+  }
+]

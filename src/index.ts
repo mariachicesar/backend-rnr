@@ -21,6 +21,7 @@ import appointmentRoutes from './routes/appointments';
 import slotRoutes from './routes/slots';
 import stripeRoutes from './routes/stripe';
 import aiEstimateRoutes from './routes/aiEstimate';
+import emailEventsRoutes from './routes/emailEvents';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -63,6 +64,7 @@ app.use('/api/projects', authMiddleware, adminMiddleware, projectRoutes);
 app.use('/api/appointments', authMiddleware, adminMiddleware, appointmentRoutes);
 app.use('/api/slots', authMiddleware, adminMiddleware, slotRoutes);
 app.use('/api/ai/estimate', authMiddleware, adminMiddleware, aiEstimateRoutes);
+app.use('/api/email-events', authMiddleware, adminMiddleware, emailEventsRoutes);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
