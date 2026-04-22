@@ -10,7 +10,11 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "seed": "ts-node src/seed.ts"
+    "seed": "ts-node src/seed.ts",
+    "db:clear": "node ./scripts/clear-test-data.js",
+    "deploy:ec2": "bash ./scripts/deploy-ec2.sh",
+    "db:migrate:rds": "bash ./scripts/migrate-local-db-to-rds.sh",
+    "setup:nginx:ssl": "bash ./scripts/setup-nginx-ssl.sh"
   },
   "keywords": [
     "express",

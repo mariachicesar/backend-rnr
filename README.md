@@ -173,6 +173,21 @@ npm start
 2. Push to ECR
 3. Deploy to ECS service
 
+### AWS EC2 (Direct VM Deployment)
+
+Use the helper script on your EC2 instance:
+
+```bash
+chmod +x ./scripts/deploy-ec2.sh
+APP_NAME=rnr-backend BRANCH=main ./scripts/deploy-ec2.sh
+```
+
+Or through npm:
+
+```bash
+npm run deploy:ec2
+```
+
 ### Heroku
 
 ```bash
@@ -233,6 +248,23 @@ pg_dump YOUR_DATABASE_URL > backup.sql
 Restore:
 ```bash
 psql YOUR_DATABASE_URL < backup.sql
+```
+
+### Local PostgreSQL to AWS RDS Migration
+
+Use the helper script from your local machine:
+
+```bash
+chmod +x ./scripts/migrate-local-db-to-rds.sh
+SOURCE_DB_URL='postgresql://local_user:local_pass@localhost:5432/rnr_electrical?schema=public' \
+TARGET_DB_URL='postgresql://rds_user:rds_pass@your-rds-host:5432/rnr_electrical?schema=public' \
+./scripts/migrate-local-db-to-rds.sh
+```
+
+Or through npm:
+
+```bash
+SOURCE_DB_URL='postgresql://...' TARGET_DB_URL='postgresql://...' npm run db:migrate:rds
 ```
 
 ## Monitoring & Logging
