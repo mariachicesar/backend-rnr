@@ -22,6 +22,8 @@ import slotRoutes from './routes/slots';
 import stripeRoutes from './routes/stripe';
 import aiEstimateRoutes from './routes/aiEstimate';
 import emailEventsRoutes from './routes/emailEvents';
+import prospectAgentRoutes from './routes/prospectAgent';
+import prospectRoutes from './routes/prospects';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -65,6 +67,9 @@ app.use('/api/appointments', authMiddleware, adminMiddleware, appointmentRoutes)
 app.use('/api/slots', authMiddleware, adminMiddleware, slotRoutes);
 app.use('/api/ai/estimate', authMiddleware, adminMiddleware, aiEstimateRoutes);
 app.use('/api/email-events', authMiddleware, adminMiddleware, emailEventsRoutes);
+// Agent route registered BEFORE /api/prospects so any sub-paths don't collide with :id
+app.use('/api/prospects-agent', authMiddleware, adminMiddleware, prospectAgentRoutes);
+app.use('/api/prospects', authMiddleware, adminMiddleware, prospectRoutes);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

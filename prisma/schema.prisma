@@ -304,3 +304,83 @@ model Account {
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
+
+// ─── B2B Prospect CRM ─────────────────────────────────────────────────────────
+// prospectType: general_contractor | builder | property_manager | developer
+// stage:        discovered | contacted | responded | meeting | proposal | partner | not_interested
+// source:       cslb_agent | google_places_agent | manual | linkedin | referral
+// priority:     low | medium | high
+
+model B2BProspect {
+  id                 String             @id @default(uuid()) @db.VarChar(255)
+  companyName        String             @db.VarChar(255)
+  contactName        String?            @db.VarChar(255)
+  email              String?            @db.VarChar(255)
+  phone              String?            @db.VarChar(50)
+  website            String?            @db.VarChar(500)
+  address            String?
+  city               String?            @db.VarChar(100)
+  state              String?            @db.VarChar(50)
+  zipCode            String?            @db.VarChar(20)
+  prospectType       String             @db.VarChar(50)
+  stage              String             @default("discovered") @db.VarChar(50)
+  priority           String             @default("medium") @db.VarChar(20)
+  cslbLicense        String?            @unique @db.VarChar(50)
+  cslbClassification String?            @db.VarChar(100)
+  cslbStatus         String?            @db.VarChar(50)
+  licenseIssuedDate  DateTime?
+  licenseExpireDate  DateTime?
+  source             String             @default("manual") @db.VarChar(50)
+  sourceUrl          String?            @db.VarChar(500)
+  linkedinUrl        String?            @db.VarChar(500)
+  enrichmentSummary  String?
+  notes              String?
+  lastContactedAt    DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  activities         ProspectActivity[]
+
+  @@index([stage])
+  @@index([prospectType])
+  @@index([source])
+  @@index([city])
+  @@index([priority])
+}
+
+model ProspectActivity {
+  id         String      @id @default(uuid()) @db.VarChar(255)
+  prospectId String      @db.VarChar(255)
+  // type: note | email | call | meeting | stage_change | agent_discovery | research | outreach_draft | value_asset | linkedin_draft
+  type       String      @db.VarChar(50)
+  title      String      @db.VarChar(255)
+  body       String?
+  metadata   String?
+  createdAt  DateTime    @default(now())
+  prospect   B2BProspect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model ProspectAgentRun {
+  id            String   @id @default(uuid()) @db.VarChar(255)
+  // searchType: cslb | google_places
+  searchType    String   @db.VarChar(50)
+  tradeFilter   String?  @db.VarChar(100)
+  cityFilter    String?  @db.VarChar(100)
+  licenseAge    String?  @db.VarChar(50)
+  // status: running | completed | failed
+  status        String   @default("running") @db.VarChar(50)
+  found         Int      @default(0)
+  imported      Int      @default(0)
+  skipped       Int      @default(0)
+  errorMessage  String?
+  resultSummary String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([searchType])
+  @@index([createdAt])
+}
