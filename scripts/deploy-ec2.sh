@@ -13,7 +13,6 @@ set -euo pipefail
 BRANCH="${BRANCH:-main}"
 APP_NAME="${APP_NAME:-rnr-backend}"
 PROJECT_DIR="${PROJECT_DIR:-$(pwd)}"
-export NODE_ENV=production
 
 cd "$PROJECT_DIR"
 
@@ -35,6 +34,8 @@ echo "[4/7] Applying production migrations..."
 npx prisma migrate deploy
 
 echo "[5/7] Building TypeScript..."
+# Set production env only for the build/runtime steps (not for npm ci, so devDeps like TypeScript are installed).
+export NODE_ENV=production
 npm run build
 
 echo "[6/7] Restarting app with PM2..."
