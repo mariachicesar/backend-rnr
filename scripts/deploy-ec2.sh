@@ -33,13 +33,9 @@ echo "[4/7] Applying production migrations..."
 #   npx prisma migrate resolve --applied <migration_name>
 npx prisma migrate deploy
 
-echo "[5/7] Building TypeScript..."
-# Set production env only for the build/runtime steps (not for npm ci, so devDeps like TypeScript are installed).
+echo "[5/7] Using pre-built dist/ from repo (built locally before push)..."
+# tsc runs locally before git push — EC2 lacks RAM to compile TypeScript.
 export NODE_ENV=production
-# Limit Node heap to avoid OOM on small EC2 instances during tsc compilation.
-export NODE_OPTIONS="--max-old-space-size=512"
-npm run build
-unset NODE_OPTIONS
 
 echo "[6/7] Restarting app with PM2..."
 if pm2 describe "$APP_NAME" >/dev/null 2>&1; then

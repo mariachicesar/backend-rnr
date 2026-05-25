@@ -1,5 +1,6 @@
 node_modules/
-dist/
+# dist/ is built locally and committed to git (EC2 lacks RAM to run tsc)
+# dist/
 .env
 .env.local
 .DS_Store
