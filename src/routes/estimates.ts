@@ -58,7 +58,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
 // POST /api/estimates - Create estimate
 router.post('/', async (req: AuthRequest, res: Response) => {
-  const { clientId, title, description, items, subtotal, tax, total, validUntil, notes, shouldSend } = req.body;
+  const { clientId, title, description, items, subtotal, tax, total, validUntil, notes, imageUrls, shouldSend } = req.body;
 
   if (!clientId || !title) {
     return res.status(400).json({ error: 'Client and title are required' });
@@ -80,6 +80,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         total,
         validUntil: validUntil ? new Date(validUntil) : null,
         notes,
+        imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
       },
       include: { client: true },
     });
@@ -130,7 +131,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
 // PUT /api/estimates/:id - Update estimate
 router.put('/:id', async (req: AuthRequest, res: Response) => {
-  const { title, description, items, subtotal, tax, total, validUntil, notes } = req.body;
+  const { title, description, items, subtotal, tax, total, validUntil, notes, imageUrls } = req.body;
 
   try {
     const estimate = await prisma.estimate.findUnique({
@@ -152,6 +153,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
         total,
         validUntil: validUntil ? new Date(validUntil) : null,
         notes,
+        imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
       },
       include: { client: true },
     });

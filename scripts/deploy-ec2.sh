@@ -13,6 +13,7 @@ set -euo pipefail
 BRANCH="${BRANCH:-main}"
 APP_NAME="${APP_NAME:-rnr-backend}"
 PROJECT_DIR="${PROJECT_DIR:-$(pwd)}"
+export NODE_ENV=production
 
 cd "$PROJECT_DIR"
 
@@ -28,6 +29,9 @@ echo "[3/7] Generating Prisma client..."
 npx prisma generate
 
 echo "[4/7] Applying production migrations..."
+# Uses 'migrate deploy' (never 'migrate dev') — safe for production, no resets.
+# If a new migration was already applied manually, resolve it first:
+#   npx prisma migrate resolve --applied <migration_name>
 npx prisma migrate deploy
 
 echo "[5/7] Building TypeScript..."
@@ -42,5 +46,8 @@ fi
 
 echo "[7/7] Saving PM2 process list..."
 pm2 save
+# Ensure PM2 restarts automatically if the server reboots.
+# Only needs to run once, but is safe to run on every deploy.
+pm2 startup --no-daemon 2>/dev/null || true
 
 echo "Deployment complete."

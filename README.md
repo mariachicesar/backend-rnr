@@ -91,7 +91,44 @@ To add initial test data:
 npm run seed
 ```
 
-## Development
+## Database Migration Workflow
+
+### Normal Day-to-Day Flow
+
+```
+1. Edit prisma/schema.prisma locally
+2. Run: npm run prisma:migrate    → creates migration file + updates local DB
+3. Commit and push the new migration file
+4. Deploy: ./scripts/deploy-ec2.sh → automatically runs prisma migrate deploy on the server
+```
+
+### Key Rules
+
+| Environment | Command | Notes |
+|-------------|---------|-------|
+| Local dev | `npm run prisma:migrate` (`prisma migrate dev`) | May reset local DB, creates migration files |
+| Production | `prisma migrate deploy` | Never resets, only applies pending migrations. Run via `deploy-ec2.sh`. |
+| Production (one-time drift fix) | `npx prisma migrate resolve --applied <migration_name>` | Use when a migration was applied manually and Prisma doesn't know about it |
+
+### What NOT to do in Production
+
+- Never run `prisma migrate dev` on the production server — it can reset your database
+- Never run `prisma db push` on production — it bypasses migration history
+- Never manually edit tables in production without creating a corresponding migration file locally
+
+### Resolving Migration Drift in Production
+
+If production has tables that aren't in migration history (e.g. added via `db push`):
+
+```bash
+# On the production server, mark the migration as already applied without re-running it
+DATABASE_URL=<prod-url> npx prisma migrate resolve --applied <migration_name>
+
+# Then future deploys will work normally
+npx prisma migrate deploy
+```
+
+
 
 Start the dev server with hot reload:
 
