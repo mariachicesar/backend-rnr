@@ -196,6 +196,15 @@ router.get('/track/estimate/:id', async (req: Request, res: Response) => {
 
     if (!estimate) return res.status(404).json({ error: 'Estimate not found' });
 
+    // Mark as viewed on first open
+    if (!estimate.viewedAt) {
+      await prisma.estimate.update({
+        where: { id },
+        data: { viewedAt: new Date() },
+      });
+      estimate.viewedAt = new Date();
+    }
+
     let depositInvoice: { id: string; clientId: string; invoiceNumber: string; status: string } | null = null;
 
     if (estimate.total < AUTO_DEPOSIT_THRESHOLD && estimate.status === 'accepted') {
